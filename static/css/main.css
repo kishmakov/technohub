@@ -36,11 +36,10 @@ p {
     margin-right: auto;
 }
 
-div.simple_fluid {
-    color: blue;
-    background: yellow;
+.left {
+    float: left;
 }
 
-p.formula {
-    color: green;
+.right {
+    float: right;
 }

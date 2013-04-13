@@ -1,0 +1,55 @@
+div.simple_fluid {
+    width: 240px;
+    height: 55px;
+    padding: 5px 5px 0 5px;
+    margin: 0 0 5px 0;
+    background: yellow;
+    font-family: times, serif;
+    cursor: pointer;
+}
+
+div.simple_fluid div {
+    height:35px;
+}
+
+div.simple_fluid div.left {
+    padding: 2px;
+    width: 115px;
+    height: 16px;
+}
+
+div.simple_fluid p {
+    font-size: 12px;
+    margin: 0;
+    padding: 0;
+}
+
+div.simple_fluid p.name {
+    font-size: 16px;
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+}
+
+div.simple_fluid p.aka {
+    font-size: 11px;
+    padding-top: 3px;
+    padding-left: 1em;
+    color: #6F6F6F;
+    font-family: "Arial Narrow", Arial, sans-serif;
+}
+
+div.simple_fluid p.formula {
+    color: #4F4F4F;
+    font-family: "Lucida Console", "Lucida Sans Typewriter", Monaco, "Bitstream Vera Sans Mono", monospace;
+}
+
+
+div.simple_fluid p.formula sub {
+    position: relative;
+    vertical-align: baseline;
+    font-size: 75%;
+    bottom: -0.25em;
+}
+
+div.simple_fluid p.number {
+    color: darkblue;
+}

@@ -1,45 +1,59 @@
 {% extends 'base.html' %}
 
+{% block css %}<link rel='stylesheet' type='text/css' href='{{ static_url }}css/vle.css'/>{% endblock %}
+
 {% block script %}
     <script type="text/javascript">
-{#        function do_request() {#}
-{#            $.get("http://localhost:8000/vle/",#}
-{#                function(data) {#}
-{#                    for (var i = 0; i < data.length; i++)#}
-{#                    {#}
-{#                        var datum = data[i];#}
-{#                        var msg = "Fluid: name = " + datum.name;#}
-{#                        msg += ", # = " + datum.number;#}
-{#                        msg += ", formula = " + datum.formula;#}
-{#                        alert(msg);#}
-{#                    }#}
-{#                },#}
-{#                dataType="json"#}
-{#            );#}
-{#        }#}
+
+    function lower_indicies(f) {
+        return f.replace(/(\d+)/g, "<sub>$1</sub>").replace(/ /g, '');
+    }
+
+    function capitalize(s) {
+        return s.trim().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
+    }
+
+    function process_sf(fluid) {
+        var re = /([^\(\)]+)/g;
+        var names = fluid.name.match(re);
+        var name = capitalize(names[0]);
+        var aka = (names.length == 1 ? '' : capitalize(names[1]));
+        var number = fluid.number;
+        var formula = lower_indicies(fluid.formula);
+
+        return {
+            name: name,
+            aka: aka,
+            number: number,
+            formula: formula
+        }
+    }
 
     function fluid_process(data) {
-{#        alert("Success!\nData is " + data);#}
-        var filtered_data = $.map(
-            data,
-            function (item) {
-                return {
-                    label: item.name,
-                    formula: item.formula,
-                    value: item.name + ": " + item.formula
-                }
-            }
-        );
-
-        return filtered_data;
+        return $.map(data, process_sf);
     }
 
     function display_simple_fluid(ul, item) {
-        var element = $("<div class='simple_fluid'>");
-        var name = "<p class='name'>" +  item.label + "</p>";
+        var name_div = $("<div>");
+        var name = "<p class='name'>" +  item.name + "</p>";
+        var aka = "<p class='aka'>" + item.aka + "</p>";
+        name_div.append(name).append(aka);
+
+        var formula_div = $("<div class='left'>");
         var formula = "<p class='formula'>" + item.formula + "</p>";
-        element.append(name).append(formula);
-        return $("<li>").append(element).appendTo(ul);
+        formula_div.append(formula);
+
+        var number_div = $("<div class='left'>");
+        var number = "<p class='number'>" + item.number + "</p>";
+        number_div.append(number);
+
+        var element = $("<div class='simple_fluid'>");
+        element.append(name_div).append(formula_div).append(number_div);
+
+        var anchor = $("<a>");
+        anchor.append(element);
+
+        return $("<li>").append(anchor).appendTo(ul);
     }
 
     var get_fluids = {
@@ -68,12 +82,7 @@
 {#        <button type="button" value="Send" onclick="do_request()">Send</button>#}
     <input id="fluid"/>
 
-    <ul>
-        <li>item 1</li>
-        <li>item 2</li>
-        <hr>
-        <li>item 3</li>
-    </ul>
+    <p>H<sub>2</sub>O</p>
 
     </div>
 {% endblock %}
