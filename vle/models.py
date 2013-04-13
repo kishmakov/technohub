@@ -1,10 +1,10 @@
 from django.db import models
 
-class SimpleFluids(models.Model):
-    id = models.IntegerField(primary_key=True, db_column=u'Id')
-    name = models.TextField(db_column=u'Name', max_length=255)
-    formula = models.TextField(db_column=u'Formula', max_length=255)
-    cas_num = models.TextField(db_column=u'CAS_Num', max_length=30)
+class SimpleFluid(models.Model):
+    id = models.AutoField(primary_key=True, db_column=u'Id')
+    name = models.CharField(db_column=u'Name', max_length=255)
+    formula = models.CharField(db_column=u'Formula', max_length=255)
+    cas_num = models.CharField(db_column=u'CAS_Num', max_length=30)
     mol_weight = models.FloatField(db_column=u'Mol_Wt', null=True, blank=True)
     tfp = models.FloatField(db_column=u'Tfp', null=True, blank=True)
     tb = models.FloatField(db_column=u'Tb', null=True, blank=True)
@@ -26,6 +26,7 @@ class SimpleFluids(models.Model):
     a3 = models.FloatField(db_column=u'A3', null=True, blank=True)
     a4 = models.FloatField(db_column=u'A4', null=True, blank=True)
     cpig = models.FloatField(db_column=u'CpIG', null=True, blank=True)
+    cpliq = models.FloatField(db_column=u'CpLiq', null=True, blank=True)
     eq_num = models.IntegerField(db_column=u'Eq_Num', null=True, blank=True)
     coef0 = models.FloatField(db_column=u'C0', null=True, blank=True)
     coef1 = models.FloatField(db_column=u'C1', null=True, blank=True)
@@ -40,6 +41,12 @@ class SimpleFluids(models.Model):
     pvpmax = models.FloatField(db_column=u'Pvp_max', null=True, blank=True)
     tmax = models.FloatField(db_column=u'T_max', null=True, blank=True)
 
-class Meta:
+    # def get_absolute_url(self):
+    #     return {'simple_fluid', [self.cas_num]}
+
+    def __unicode__(self):
+        return '{0} ({1}): {2}'.format(self.cas_num, self.name, self.formula)
+
+    class Meta:
         db_table = u'simple_fluids'
 
