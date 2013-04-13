@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block script %}
+    <script type="text/javascript">
+{#        function do_request() {#}
+{#            $.get("http://localhost:8000/vle/",#}
+{#                function(data) {#}
+{#                    for (var i = 0; i < data.length; i++)#}
+{#                    {#}
+{#                        var datum = data[i];#}
+{#                        var msg = "Fluid: name = " + datum.name;#}
+{#                        msg += ", # = " + datum.number;#}
+{#                        msg += ", formula = " + datum.formula;#}
+{#                        alert(msg);#}
+{#                    }#}
+{#                },#}
+{#                dataType="json"#}
+{#            );#}
+{#        }#}
+
+    function fluid_process(data) {
+{#        alert("Success!\nData is " + data);#}
+        var filtered_data = $.map(
+            data,
+            function (item) {
+                return {
+                    label: item.name,
+                    formula: item.formula,
+                    value: item.name + ": " + item.formula
+                }
+            }
+        );
+
+        return filtered_data;
+    }
+
+    function display_simple_fluid(ul, item) {
+        var element = $("<div class='simple_fluid'>");
+        var name = "<p class='name'>" +  item.label + "</p>";
+        var formula = "<p class='formula'>" + item.formula + "</p>";
+        element.append(name).append(formula);
+        return $("<li>").append(element).appendTo(ul);
+    }
+
+    var get_fluids = {
+        source: function (request, response) {
+            $.ajax({
+                url: "http://localhost:8000/vle/db/",
+                dataType: "json",
+                success: function (data) {
+                    response(fluid_process(data));
+                }
+            });
+        },
+        minLength: 1
+    }
+
+    $(function () {
+        $("#fluid").autocomplete(get_fluids)
+        .data( "ui-autocomplete" )._renderItem = display_simple_fluid;
+    });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div style="margin:0 auto;width:1200px;height:800px;background-color:#d3d3d3;">
+
+{#        <button type="button" value="Send" onclick="do_request()">Send</button>#}
+    <input id="fluid"/>
+
+    <ul>
+        <li>item 1</li>
+        <li>item 2</li>
+        <hr>
+        <li>item 3</li>
+    </ul>
+
+    </div>
+{% endblock %}
