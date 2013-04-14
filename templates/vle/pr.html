@@ -5,7 +5,7 @@
 {% block script %}
     <script type="text/javascript">
 
-    function lower_indicies(f) {
+    function formulate(f) {
         return f.replace(/(\d+)/g, "<sub>$1</sub>").replace(/ /g, '');
     }
 
@@ -19,7 +19,7 @@
         var name = capitalize(names[0]);
         var aka = (names.length == 1 ? '' : capitalize(names[1]));
         var number = fluid.number;
-        var formula = lower_indicies(fluid.formula);
+        var formula = formulate(fluid.formula);
 
         return {
             name: name,
@@ -61,28 +61,46 @@
             $.ajax({
                 url: "http://localhost:8000/vle/db/",
                 dataType: "json",
+                data: {
+                    query: 'string',
+                    string: request.term.toLowerCase()
+                },
                 success: function (data) {
                     response(fluid_process(data));
                 }
             });
         },
-        minLength: 1
+        minLength: 2,
+        select: function(event, ui) {
+            $("label#text").text(ui.item.name);
+        },
+        messages: {
+            noResults: '',
+            results: function() {}
+        }
     }
 
+    var hint = 'e.g. Water or 7732-18-5';
+
     $(function () {
-        $("#fluid").autocomplete(get_fluids)
-        .data( "ui-autocomplete" )._renderItem = display_simple_fluid;
+        var fs = $("#fluid_selection");
+
+        fs.autocomplete(get_fluids)
+            .data( "ui-autocomplete" )._renderItem = display_simple_fluid;
+
+        fs.on('focus', function () {this.value = '';});
+        fs.on('blur', function () {this.value = hint;});
+        fs.val(hint);
     });
     </script>
 {% endblock %}
 
 {% block body %}
-    <div style="margin:0 auto;width:1200px;height:800px;background-color:#d3d3d3;">
+    <div id="selection" class="left">
+        <input id="fluid_selection" class="center"/>
+    </div>
 
-{#        <button type="button" value="Send" onclick="do_request()">Send</button>#}
-    <input id="fluid"/>
-
-    <p>H<sub>2</sub>O</p>
-
+    <div id="fluid" class="left">
+        <label id="text">Text.</label>
     </div>
 {% endblock %}

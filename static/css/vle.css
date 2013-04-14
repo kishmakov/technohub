@@ -53,3 +53,15 @@ div.simple_fluid p.formula sub {
 div.simple_fluid p.number {
     color: darkblue;
 }
+
+div#selection {
+    width: 240px;
+    height: 50px;
+    background: #DDDDDD;
+}
+
+input#fluid_selection {
+    margin: 15px 20px;
+    width: 200px;
+    height: 20px;
+}
