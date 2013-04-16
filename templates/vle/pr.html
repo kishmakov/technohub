@@ -5,6 +5,8 @@
 {% block script %}
     <script type="text/javascript">
 
+    // general
+
     function formulate(f) {
         return f.replace(/(\d+)/g, "<sub>$1</sub>").replace(/ /g, '');
     }
@@ -13,7 +15,7 @@
         return s.trim().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
     }
 
-    function process_sf(fluid) {
+    function prepare_4_printing(fluid) {
         var re = /([^\(\)]+)/g;
         var names = fluid.name.match(re);
         var name = capitalize(names[0]);
@@ -21,17 +23,90 @@
         var number = fluid.number;
         var formula = formulate(fluid.formula);
 
-        return {
+        var prepared = {
             name: name,
             aka: aka,
             number: number,
             formula: formula
+        };
+
+        if ('weight' in fluid) {
+            prepared.weight = fluid.weight;
+        }
+
+        if ('tfp' in fluid) {
+            prepared.tfp = fluid.tfp;
+        }
+
+        return prepared;
+    }
+
+    function process_json(data) {
+        return $.map(data, prepare_4_printing);
+    }
+
+
+    // db access
+
+    var db_url = 'http://localhost:8000/vle/db/';
+
+    function db_query(datum, callback) {
+        $.ajax({
+            url: db_url,
+            dataType: 'json',
+            data: datum,
+            success: callback
+        });
+    }
+
+    // selection
+
+    var hint = 'e.g. Water or 7732-18-5';
+
+    var fluid_selection_descriptor = {
+        source: function (request, response) {
+
+            var datum = {
+                query: 'string',
+                string: request.term.toLowerCase()
+            };
+
+            function processing(data) {
+                response(process_json(data));
+            }
+
+            db_query(datum, processing);
+        },
+        minLength: 2,
+        select: function(event, ui) {
+            choose_fluid(ui.item.number);
+        },
+        messages: {
+            noResults: '',
+            results: function() {}
         }
     }
 
-    function fluid_process(data) {
-        return $.map(data, process_sf);
+    // parametrization
+
+    function choose_fluid(number) {
+        var datum = {
+            query: 'number',
+            number: number
+        }
+
+        function processing(data) {
+            var processed = process_json(data);
+            $('label#text').text(processed);
+            alert(processed);
+        }
+
+        db_query(datum, processing);
     }
+
+    // plot
+
+    // initialization
 
     function display_simple_fluid(ul, item) {
         var name_div = $("<div>");
@@ -56,36 +131,11 @@
         return $("<li>").append(anchor).appendTo(ul);
     }
 
-    var get_fluids = {
-        source: function (request, response) {
-            $.ajax({
-                url: "http://localhost:8000/vle/db/",
-                dataType: "json",
-                data: {
-                    query: 'string',
-                    string: request.term.toLowerCase()
-                },
-                success: function (data) {
-                    response(fluid_process(data));
-                }
-            });
-        },
-        minLength: 2,
-        select: function(event, ui) {
-            $("label#text").text(ui.item.name);
-        },
-        messages: {
-            noResults: '',
-            results: function() {}
-        }
-    }
-
-    var hint = 'e.g. Water or 7732-18-5';
 
     $(function () {
         var fs = $("#fluid_selection");
 
-        fs.autocomplete(get_fluids)
+        fs.autocomplete(fluid_selection_descriptor)
             .data( "ui-autocomplete" )._renderItem = display_simple_fluid;
 
         fs.on('focus', function () {this.value = '';});
@@ -100,7 +150,7 @@
         <input id="fluid_selection" class="center"/>
     </div>
 
-    <div id="fluid" class="left">
+    <div id="fluid_info" class="left">
         <label id="text">Text.</label>
     </div>
 {% endblock %}

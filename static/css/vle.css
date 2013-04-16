@@ -65,3 +65,10 @@ input#fluid_selection {
     width: 200px;
     height: 20px;
 }
+
+div#fluid_info {
+    margin: 15px 20px;
+    width: 350px;
+    height: 80px;
+    background: yellow;
+}
