@@ -7,6 +7,31 @@
 
     // general
 
+    var PR_dictionary = {
+        db_url: 'http://localhost:8000/vle/db/',
+        hint: 'e.g. Water or 7732-18-5'
+    }
+
+    function fluid_2_html(fluid) {
+        var name_div = $("<div>");
+        var name = "<p class='name'>" + fluid.name + "</p>";
+        var aka = "<p class='aka'>" + fluid.aka + "</p>";
+        name_div.append(name).append(aka);
+
+        var formula_div = $("<div class='left'>");
+        var formula = "<p class='formula'>" + fluid.formula + "</p>";
+        formula_div.append(formula);
+
+        var number_div = $("<div class='left'>");
+        var number = "<p class='number'>" + fluid.number + "</p>";
+        number_div.append(number);
+
+        var element = $("<div class='simple_fluid'>");
+        element.append(name_div).append(formula_div).append(number_div);
+        return element;
+    }
+
+
     function formulate(f) {
         return f.replace(/(\d+)/g, "<sub>$1</sub>").replace(/ /g, '');
     }
@@ -30,12 +55,17 @@
             formula: formula
         };
 
-        if ('weight' in fluid) {
-            prepared.weight = fluid.weight;
-        }
-
-        if ('tfp' in fluid) {
-            prepared.tfp = fluid.tfp;
+        for (property in fluid) {
+            switch (property) {
+                case 'name':
+                case 'number':
+                case 'formula':
+                    break;
+                default:
+                    if (fluid.hasOwnProperty(property)) {
+                        prepared[property] = fluid[property];
+                    }
+            }
         }
 
         return prepared;
@@ -48,11 +78,9 @@
 
     // db access
 
-    var db_url = 'http://localhost:8000/vle/db/';
-
     function db_query(datum, callback) {
         $.ajax({
-            url: db_url,
+            url: PR_dictionary.db_url,
             dataType: 'json',
             data: datum,
             success: callback
@@ -60,8 +88,6 @@
     }
 
     // selection
-
-    var hint = 'e.g. Water or 7732-18-5';
 
     var fluid_selection_descriptor = {
         source: function (request, response) {
@@ -97,8 +123,9 @@
 
         function processing(data) {
             var processed = process_json(data);
-            $('label#text').text(processed);
-            alert(processed);
+            var element = fluid_2_html(processed[0]);
+            var target_div = $('div#fluid_info');
+            target_div.empty().append(element);
         }
 
         db_query(datum, processing);
@@ -109,22 +136,7 @@
     // initialization
 
     function display_simple_fluid(ul, item) {
-        var name_div = $("<div>");
-        var name = "<p class='name'>" +  item.name + "</p>";
-        var aka = "<p class='aka'>" + item.aka + "</p>";
-        name_div.append(name).append(aka);
-
-        var formula_div = $("<div class='left'>");
-        var formula = "<p class='formula'>" + item.formula + "</p>";
-        formula_div.append(formula);
-
-        var number_div = $("<div class='left'>");
-        var number = "<p class='number'>" + item.number + "</p>";
-        number_div.append(number);
-
-        var element = $("<div class='simple_fluid'>");
-        element.append(name_div).append(formula_div).append(number_div);
-
+        var element = fluid_2_html(item);
         var anchor = $("<a>");
         anchor.append(element);
 
@@ -139,8 +151,8 @@
             .data( "ui-autocomplete" )._renderItem = display_simple_fluid;
 
         fs.on('focus', function () {this.value = '';});
-        fs.on('blur', function () {this.value = hint;});
-        fs.val(hint);
+        fs.on('blur', function () {this.value = PR_dictionary.hint;});
+        fs.val(PR_dictionary.hint);
     });
     </script>
 {% endblock %}
@@ -151,6 +163,5 @@
     </div>
 
     <div id="fluid_info" class="left">
-        <label id="text">Text.</label>
     </div>
 {% endblock %}
