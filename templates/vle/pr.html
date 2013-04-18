@@ -12,22 +12,53 @@
         hint: 'e.g. Water or 7732-18-5'
     }
 
+    function create_p(message, classes) {
+        var res = $(document.createElement('p'));
+        res.html(message).addClass(classes);
+        return res;
+    }
+
+    function create_div(classes) {
+        var res = $(document.createElement('div'));
+        res.addClass(classes);
+        return res;
+    }
+
     function fluid_2_html(fluid) {
-        var name_div = $("<div>");
-        var name = "<p class='name'>" + fluid.name + "</p>";
-        var aka = "<p class='aka'>" + fluid.aka + "</p>";
-        name_div.append(name).append(aka);
 
-        var formula_div = $("<div class='left'>");
-        var formula = "<p class='formula'>" + fluid.formula + "</p>";
-        formula_div.append(formula);
+        var div_name = create_div('');
+        var p_name = create_p(fluid.name, 'name');
+        var p_aka = create_p(fluid.aka, 'aka');
 
-        var number_div = $("<div class='left'>");
-        var number = "<p class='number'>" + fluid.number + "</p>";
-        number_div.append(number);
+        div_name.append(p_name).append(p_aka);
 
-        var element = $("<div class='simple_fluid'>");
-        element.append(name_div).append(formula_div).append(number_div);
+        var div_formula = create_div('left');
+        var p_formula = create_p(fluid.formula, 'formula');
+        div_formula.append(p_formula);
+
+        var div_number = create_div('left');
+        var p_number = create_p(fluid.number, 'number');
+        div_number.append(p_number);
+
+        var element = create_div('');
+        element.append(div_name).append(div_formula).append(div_number);
+
+        rest_properties = ['tc', 'pc', 'vc', 'omega'];
+        rest_names = ['Tc', 'Pc', 'Vc', 'Acentric factor'];
+
+        for (var i = 0; i < rest_properties.length; i++) {
+            var prop = rest_properties[i];
+            var name = rest_names[i];
+            if (!fluid.hasOwnProperty(prop)) {
+                continue;
+            }
+
+            var property_div = create_div('numeric_property');
+            var property_value = create_p(name + ': ' + fluid[prop], 'numeric_value');
+            property_div.append(property_value);
+            element.append(property_div);
+        }
+
         return element;
     }
 
@@ -56,15 +87,21 @@
         };
 
         for (property in fluid) {
+            var processed = false;
             switch (property) {
                 case 'name':
                 case 'number':
                 case 'formula':
+                    processed = true;
                     break;
-                default:
-                    if (fluid.hasOwnProperty(property)) {
-                        prepared[property] = fluid[property];
-                    }
+            }
+
+            if (processed) {
+                continue;
+            }
+
+            if (fluid.hasOwnProperty(property)) {
+                prepared[property] = fluid[property];
             }
         }
 
@@ -113,6 +150,14 @@
         }
     }
 
+    function display_simple_fluid(ul, item) {
+        var element = fluid_2_html(item);
+        element.addClass('simple_fluid');
+        var anchor = $(document.createElement('a')).append(element);
+        return $("<li>").append(anchor).appendTo(ul);
+    }
+
+
     // parametrization
 
     function choose_fluid(number) {
@@ -134,14 +179,6 @@
     // plot
 
     // initialization
-
-    function display_simple_fluid(ul, item) {
-        var element = fluid_2_html(item);
-        var anchor = $("<a>");
-        anchor.append(element);
-
-        return $("<li>").append(anchor).appendTo(ul);
-    }
 
 
     $(function () {

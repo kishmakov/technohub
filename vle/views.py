@@ -47,8 +47,10 @@ def data_base(request):
         }
 
         if detailed:
-            description['weight'] = fluid.mol_weight
-            description['tfp'] = fluid.tfp
+            description['tc'] = fluid.tc
+            description['pc'] = fluid.pc
+            description['vc'] = fluid.vc
+            description['omega'] = fluid.omega
 
         lines.append(description)
 
