@@ -152,7 +152,7 @@
 
     function display_simple_fluid(ul, item) {
         var element = fluid_2_html(item);
-        element.addClass('simple_fluid');
+        element.addClass('sfitem');
         var anchor = $(document.createElement('a')).append(element);
         return $("<li>").append(anchor).appendTo(ul);
     }
@@ -169,6 +169,7 @@
         function processing(data) {
             var processed = process_json(data);
             var element = fluid_2_html(processed[0]);
+            element.addClass('sfdisplay');
             var target_div = $('div#fluid_info');
             target_div.empty().append(element);
         }
@@ -199,6 +200,10 @@
         <input id="fluid_selection" class="center"/>
     </div>
 
-    <div id="fluid_info" class="left">
+    <div id="fluid_info" class="left"></div>
+    <div id="control_panel" class="right">
+        <div clas="select">
+            <p>V: </p> <input type="text" name="Volume">
+        </div>
     </div>
 {% endblock %}

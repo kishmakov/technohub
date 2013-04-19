@@ -1,35 +1,49 @@
-div.simple_fluid {
+div.sfitem, div.sfdisplay {
     width: 240px;
-    height: 55px;
     padding: 5px 5px 0 5px;
     margin: 0 0 5px 0;
     background: yellow;
     font-family: times, serif;
+}
+
+div.sfdisplay, div#control_panel {
+    height: 95px;
+}
+
+div.sfitem {
+    height: 55px;
     cursor: pointer;
 }
 
-div.simple_fluid div {
+div.sfitem div, div.sfdisplay div {
     height:35px;
 }
 
-div.simple_fluid div.left {
+div.sfitem div.left, div.sfdisplay div.left  {
     padding: 2px;
     width: 115px;
     height: 16px;
 }
 
-div.simple_fluid p {
+div.sfdisplay div.numeric_property {
+    padding: 2px;
+    width: 115px;
+    height: 16px;
+    float: left;
+}
+
+div.sfitem p, div.sfdisplay p {
     font-size: 12px;
     margin: 0;
     padding: 0;
 }
 
-div.simple_fluid p.name {
+p.name {
     font-size: 16px;
     font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
 }
 
-div.simple_fluid p.aka {
+p.aka {
     font-size: 11px;
     padding-top: 3px;
     padding-left: 1em;
@@ -37,20 +51,20 @@ div.simple_fluid p.aka {
     font-family: "Arial Narrow", Arial, sans-serif;
 }
 
-div.simple_fluid p.formula {
+p.formula {
     color: #4F4F4F;
     font-family: "Lucida Console", "Lucida Sans Typewriter", Monaco, "Bitstream Vera Sans Mono", monospace;
 }
 
 
-div.simple_fluid p.formula sub {
+p.formula sub {
     position: relative;
     vertical-align: baseline;
     font-size: 75%;
     bottom: -0.25em;
 }
 
-div.simple_fluid p.number {
+p.number {
     color: darkblue;
 }
 
@@ -69,6 +83,16 @@ input#fluid_selection {
 div#fluid_info {
     margin: 15px 20px;
     width: 350px;
-    height: 80px;
-    background: yellow;
+    height: 120px;
+    background: orange;
+}
+
+/* control panel */
+
+div#control_panel {
+    width: 240px;
+    padding: 5px 5px 0 5px;
+    margin: 0 0 5px 0;
+    background: blue;
+    font-family: times, serif;
 }
