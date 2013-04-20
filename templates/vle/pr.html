@@ -3,13 +3,25 @@
 {% block css %}<link rel='stylesheet' type='text/css' href='{{ static_url }}css/vle.css'/>{% endblock %}
 
 {% block script %}
+    <script src='{{ static_url }}js/flot/excanvas.min.js'></script>
+    <script src='{{ static_url }}js/flot/jquery.flot.js'></script>
     <script type="text/javascript">
 
     // general
 
     var PR_dictionary = {
         db_url: 'http://localhost:8000/vle/db/',
-        hint: 'e.g. Water or 7732-18-5'
+        fs_hint: 'e.g. Water or 7732-18-5',
+        t_hint: 'in K',
+        vmin_hint: 'in cm3 / mol',
+        vmax_hint: 'in cm3 / mol',
+        t_in: -1,
+        vmin_in: -1,
+        vmax_in: -1,
+        tc_f: -1,
+        pc_f: -1,
+        vc_f: -1,
+        omega_f: -1
     }
 
     function create_p(message, classes) {
@@ -112,7 +124,6 @@
         return $.map(data, prepare_4_printing);
     }
 
-
     // db access
 
     function db_query(datum, callback) {
@@ -157,8 +168,41 @@
         return $("<li>").append(anchor).appendTo(ul);
     }
 
-
     // parametrization
+
+    function activate_cbuttons(id, value) {
+        switch (id) {
+            case 't_in':
+                PR_dictionary.t_in = value;
+                break;
+            case 'vmin_in':
+                PR_dictionary.vmin_in = value;
+                break;
+            case 'vmax_in':
+                PR_dictionary.vmax_in = value;
+                break;
+        }
+
+        var enable_draw = true;
+        enable_draw = enable_draw && PR_dictionary.t_in > 0;
+        enable_draw = enable_draw && PR_dictionary.vmin_in > 0;
+        enable_draw = enable_draw && PR_dictionary.vmax_in > 0;
+
+
+        $("button#draw_plot").prop('disabled', !enable_draw);
+
+    }
+
+    function activate_cinput(fluid) {
+        PR_dictionary.tc_f = fluid.tc;
+        PR_dictionary.pc_f = fluid.pc;
+        PR_dictionary.vc_f = fluid.vc;
+        PR_dictionary.omega_f = fluid.omega;
+
+        $('#t_in').prop('disabled', false);
+        $('#vmin_in').prop('disabled', false);
+        $('#vmax_in').prop('disabled', false);
+    }
 
     function choose_fluid(number) {
         var datum = {
@@ -170,8 +214,9 @@
             var processed = process_json(data);
             var element = fluid_2_html(processed[0]);
             element.addClass('sfdisplay');
-            var target_div = $('div#fluid_info');
+            var target_div = $('div#finfo > div.padding');
             target_div.empty().append(element);
+            activate_cinput(processed[0]);
         }
 
         db_query(datum, processing);
@@ -179,31 +224,179 @@
 
     // plot
 
+    function prepare_notations() {
+        var T = PR_dictionary.t_in;
+        var Tc = PR_dictionary.tc_f;
+        var Pc = PR_dictionary.pc_f;
+        var omega = PR_dictionary.omega_f;
+
+        var R = 8.314462175;
+
+        var ac = 0.45724 * R * R * Tc * Tc / (Pc * Pc);
+        var b = 0.07780 * R * Tc / Pc;
+
+        var kappa = 0;
+        if (omega <= 0.49) {
+            kappa = 0.37464 + 1.54226 * omega - 0.26992 * omega * omega;
+        } else {
+            kappa = 0.379642 + 1.48503 * omega - 0.164423 * omega * omega;
+            kappa += 0.016666 * omega * omega * omega;
+        }
+
+        var Tr = T / Tc;
+        var tmp = 1 + kappa * (1 - Math.sqrt(Tr));
+        var a = tmp * tmp * ac;
+
+        PR_dictionary.R_eq = R;
+        PR_dictionary.a_eq = a;
+        PR_dictionary.b_eq = b;
+    }
+
+    function peng_robinson(V) {
+        var R = PR_dictionary.R_eq;
+        var a = PR_dictionary.a_eq;
+        var b = PR_dictionary.b_eq;
+        var T = PR_dictionary.t_in;
+
+        var P = R * T / (V - b);
+        P -= a / (V * V  + 2 * b * V - b * b);
+
+        return P;
+    }
+
+    function draw_plot() {
+
+        prepare_notations();
+        var minp = 0;
+        var maxp = 0;
+
+        var vmax = PR_dictionary.vmax_in;
+        var vmin = PR_dictionary.vmin_in;
+
+        var dv = 0.01 * (vmax - vmin);
+
+        points = [];
+
+        for (var i = 0; i < 101; i++) {
+            var v = vmin + i * dv;
+            var p = peng_robinson(v);
+            maxp = Math.max(p, maxp);
+            minp = Math.min(p, minp);
+            points.push([v, p]);
+        }
+
+        dp = 0.1 * (maxp - minp);
+
+        $.plot($("#placeholder"), [ {data: points, label: 'P, bar'}], { yaxis: { max: maxp + dp, min: minp - dp } });
+
+    }
+
     // initialization
 
+    function init_input(input, hint, onblur) {
+        input.attr('hint', hint);
+        input.on('focus', function () {this.value = '';});
+        if (onblur) {
+            input.on('blur', onblur);
+        } else {
+            input.on('blur', function () { this.value = hint;});
+        }
+        input.val(hint);
+    }
+
+    function check_numeric() {
+        if (!$.isNumeric(this.value)) {
+            var val = this.value;
+            this.value = this.attributes.hint.nodeValue;
+            alert('"' + val + '" is not a number');
+            activate_cbuttons(this.id, -1);
+            return;
+        }
+
+        var value = parseFloat(this.value);
+        if (value < 0) {
+            this.value = this.attributes.hint.nodeValue;
+            alert('amount must be positive');
+            activate_cbuttons(this.id, -1);
+        }
+
+        activate_cbuttons(this.id, value);
+    }
+
+    function init_inputs() {
+        init_input($('#fluid_selection'), PR_dictionary.fs_hint);
+        init_input($('#t_in'), PR_dictionary.t_hint, check_numeric);
+        init_input($('#vmin_in'), PR_dictionary.vmin_hint, check_numeric);
+        init_input($('#vmax_in'), PR_dictionary.vmax_hint, check_numeric);
+    }
 
     $(function () {
-        var fs = $("#fluid_selection");
-
-        fs.autocomplete(fluid_selection_descriptor)
-            .data( "ui-autocomplete" )._renderItem = display_simple_fluid;
-
-        fs.on('focus', function () {this.value = '';});
-        fs.on('blur', function () {this.value = PR_dictionary.hint;});
-        fs.val(PR_dictionary.hint);
+        init_inputs();
+        $("#fluid_selection").autocomplete(fluid_selection_descriptor)
+            .data( "ui-autocomplete" ).
+            _renderItem = display_simple_fluid;
+        $('#draw_plot').on('click', draw_plot);
     });
     </script>
 {% endblock %}
 
 {% block body %}
-    <div id="selection" class="left">
-        <input id="fluid_selection" class="center"/>
-    </div>
-
-    <div id="fluid_info" class="left"></div>
-    <div id="control_panel" class="right">
-        <div clas="select">
-            <p>V: </p> <input type="text" name="Volume">
+    <div id="top">
+        <div id="selection" class="left">
+            <div class="padding">
+                <input id="fluid_selection" type="text" class="center"/>
+            </div>
+        </div>
+        <div id="finfo" class="left">
+            <div class="padding">
+            </div>
+        </div>
+        <div id="cpanel" class="left">
+            <div id="cinput" class="left">
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="title">
+                            <img src="{{ static_url }}media/button.png" height="10px"> T
+                        </td>
+                        <td class="input">
+                            <input type="text" id="t_in" disabled>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="title">
+                            <img src="{{ static_url }}media/button.png" height="10px"> V<sub>min</sub>
+                        </td>
+                        <td class="input">
+                            <input type="text" id="vmin_in" disabled>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="title">
+                            <img src="{{ static_url }}media/button.png" height="10px"> V<sub>max</sub>
+                        </td>
+                        <td class="input">
+                            <input type="text" id="vmax_in" disabled>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+            <div id="cbuttons" class="left">
+                <button id="draw_plot" disabled>Draw plot</button>
+                <button value="save_plot" disabled>Save plot</button>
+            </div>
         </div>
     </div>
+    <div id="bottom">
+        <div id="placeholder" class="left">
+        </div>
+    </div>
+
+{#    <div id="control_panel" class="right">#}
+{#        <div clas="select">#}
+{#            <p>T: </p> <input type="text" name="Volume"><br>#}
+{#            <p>Vmin: </p> <input type="text" name="Volume"> <p>Vmax: </p> <input type="text" name="Volume"><br>#}
+{#        </div>#}
+{#    </div>#}
 {% endblock %}

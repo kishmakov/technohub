@@ -1,18 +1,110 @@
+/* top */
+
+div#top {
+    height: 140px;
+    width: 100%;
+}
+
+div#selection {
+    width: 247px;
+}
+
+div#finfo {
+    width: 267px;
+    background: #EEFFEE;
+}
+
+div#cpanel {
+    width: 577px;
+}
+
+div#selection, div#finfo, div#cpanel {
+    height: 137px;
+}
+
+/* bottom */
+
+div#bottom {
+    height: 600px;
+    width: 100%;
+}
+
+div#placeholder {
+    height: 597px;
+    width: 1097px;
+}
+
+/* common */
+
+div#selection, div#finfo, div#cpanel, div#placeholder {
+    margin: 0 3px 3px 0;
+}
+
+/* cpanel */
+
+div#cinput {
+    width: 220px;
+}
+
+div#cbuttons {
+    width: 250px;
+}
+
+div#cbuttons button {
+    margin: 0 10px 0 0;
+}
+
+div#cinput, div#cbuttons {
+    padding: 10px 0 0 5px;
+}
+
+div#cpanel input[type="text"] {
+    height: 18px;
+    width: 90px;
+    font-size: 14px;
+    font-family: "Arial Narrow", Arial, sans-serif;
+}
+
+div#cpanel td {
+    padding: 3px;
+    height:25px;
+    width: 100px;
+    color: #4F4F4F;
+    font-size: 14px;
+    font-family: "Lucida Console", "Lucida Sans Typewriter", Monaco, "Bitstream Vera Sans Mono", monospace;
+}
+
+/* selection */
+
+div#selection div.padding {
+    padding: 10px 0 0 4px;
+}
+
+div#selection input[type="text"] {
+    height: 20px;
+}
+
+/* finfo */
+
+div#finfo div.padding {
+    padding: 10px 0 0 4px;
+}
+
 div.sfitem, div.sfdisplay {
     width: 240px;
     padding: 5px 5px 0 5px;
     margin: 0 0 5px 0;
-    background: yellow;
     font-family: times, serif;
 }
 
-div.sfdisplay, div#control_panel {
+div.sfdisplay {
     height: 95px;
 }
 
 div.sfitem {
     height: 55px;
     cursor: pointer;
+    background: #EEEEEE;
 }
 
 div.sfitem div, div.sfdisplay div {
@@ -37,6 +129,8 @@ div.sfitem p, div.sfdisplay p {
     margin: 0;
     padding: 0;
 }
+
+/* fluid info */
 
 p.name {
     font-size: 16px;
@@ -68,24 +162,24 @@ p.number {
     color: darkblue;
 }
 
-div#selection {
-    width: 240px;
-    height: 50px;
-    background: #DDDDDD;
-}
+/*div#selection {*/
+    /*width: 240px;*/
+    /*height: 50px;*/
+    /*background: #DDDDDD;*/
+/*}*/
 
-input#fluid_selection {
-    margin: 15px 20px;
-    width: 200px;
-    height: 20px;
-}
+/*input#fluid_selection {*/
+    /*margin: 15px 20px;*/
+    /*width: 200px;*/
+    /*height: 20px;*/
+/*}*/
 
-div#fluid_info {
-    margin: 15px 20px;
-    width: 350px;
-    height: 120px;
-    background: orange;
-}
+/*div#fluid_info {*/
+    /*margin: 15px 20px;*/
+    /*width: 350px;*/
+    /*height: 120px;*/
+    /*background: orange;*/
+/*}*/
 
 /* control panel */
 
