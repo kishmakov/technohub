@@ -8,6 +8,7 @@ TEMPLATE_DEBUG = DEBUG
 # absolute path uniquely settled
 PROJECT_LOCATION = os.path.join(os.path.dirname(__file__), '..')
 SITE_URL = 'http://localhost:8000'
+# SITE_URL = 'http://technohub.kshmakov.org'
 
 def make_full(relative_path):
     return os.path.join(PROJECT_LOCATION, relative_path).replace('\\','/')

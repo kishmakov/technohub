@@ -100,3 +100,16 @@ button:enabled:active {
     background-image: linear-gradient(#3072b3, #599bdc);
 }
 
+h2 {
+    font-size: 22px;
+    font-family: "Arial Narrow", Arial, sans-serif;
+    padding: 5px;
+}
+
+
+p {
+    font-size: 18px;
+    font-family: "Arial Narrow", Arial, sans-serif;
+    padding: 3px;
+}
+
